@@ -7,8 +7,7 @@ ENV DOMAIN=:80
 ENV PUID=1000
 ENV PGID=1000
 
-RUN apk add --no-cache --update caddy aria2 && \
-    addgroup -g $PGID -S g_aria2 && adduser d_aria2 -u $PUID -SDH -G g_aria2 -s /sbin/nologin
+RUN apk add --no-cache --update caddy aria2
 
 COPY conf /aria2/conf-copy
 COPY aria2c.sh /aria2/

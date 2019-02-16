@@ -8,7 +8,7 @@ ENV PUID=1000
 ENV PGID=1000
 
 RUN apk add --no-cache --update caddy aria2 && \
-    addgroup -g $PGID -S g_aria2 && adduser d_aria2 -u $PUID -SDH -G g_aria2 -s /sbin/nologin
+    addgroup -g $PGID -S aria2 && adduser aria2 -u $PUID -SDH -G aria2 -s /sbin/nologin
 
 COPY conf /aria2/conf-copy
 COPY aria2c.sh /aria2/
@@ -22,6 +22,8 @@ RUN chmod +x /aria2/aria2c.sh && \
     unzip AriaNg-${ARIANG_VERSION}.zip && \
     rm AriaNg-${ARIANG_VERSION}.zip && \
     chmod -R 644 ./
+
+WORKDIR /aria2
 
 # User downloaded files
 VOLUME /aria2/data
