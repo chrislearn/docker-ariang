@@ -15,6 +15,7 @@ RUN apk add --no-cache --update caddy aria2
 COPY conf /aria2/conf-copy
 COPY aria2c.sh /aria2/
 COPY Caddyfile /
+COPY SecureCaddyfile /
 
 # AriaNG
 WORKDIR /ariang
