@@ -1,26 +1,22 @@
+#!/bin/sh
+
 conf_path=/aria2/conf
 conf_copy_path=/aria2/conf-copy
 data_path=/aria2/data
 
-userid=0 # 65534 - nobody, 0 - root
-groupid=0
-
 if [ ! -f $conf_path/aria2.conf ]; then
-	cp $conf_copy_path/aria2.conf $conf_path/aria2.conf
-    if [ -n "$RPC_SECRET" ]; then
-        printf '\nrpc-secret=%s\n' ${RPC_SECRET} >> $conf_path/aria2.conf
-    fi
+    cp $conf_copy_path/aria2.conf $conf_path/aria2.conf
+
 fi
 
-touch ./conf/aria2.session
+touch $conf_path/aria2.session
 
-if [[ -n "$PUID" && -n  "$PGID" ]]; then
-    userid=$PUID
-    groupid=$PGID
+chown -R daemon:daemon $conf_path
+chown -R daemon:daemon $data_path
+
+if [ -n "$RPC_SECRET" ]; then
+    RPC_PARAMETER="--rpc-secret=`echo $RPC_SECRET`"
 fi
 
-chown -R $userid:$groupid $conf_path
-chown -R $userid:$groupid $data_path
-
-caddy -quiet -conf /usr/local/caddy/Caddyfile &
-su-exec $userid:$groupid aria2c --conf-path="$conf_path/aria2.conf"
+su -s/bin/sh -c"caddy -quiet -conf /etc/Caddyfile" daemon && \
+su -s/bin/sh -c"aria2c --log=$conf_path/aria2.log --conf-path=$conf_path/aria2.conf $RPC_PARAMETER" daemon

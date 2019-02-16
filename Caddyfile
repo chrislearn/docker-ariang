@@ -1,5 +1,5 @@
 {$DOMAIN} {
-  root /usr/local/www/aria2
+  root /ariang
   timeouts none
   gzip
 }
