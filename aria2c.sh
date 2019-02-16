@@ -39,5 +39,11 @@ if [ -n "$RPC_SECRET" ]; then
     RPC_PARAMETER="--rpc-secret=`echo $RPC_SECRET`"
 fi
 
-su -s/bin/sh -c"caddy -quiet -conf /Caddyfile" "$EXE_USER" &
-su -s/bin/sh -c"aria2c --log=$conf_path/aria2.log --conf-path=$conf_path/aria2.conf --input-file=$conf_path/aria2.session --save-session=$conf_path/aria2.session $RPC_PARAMETER" "$EXE_USER"
+if [ "$ENABLE_AUTH" = "true" ]; then
+  CADDY_FILE=/SecureCaddyfile
+else
+  CADDY_FILE=/Caddyfile
+fi
+
+su -s/bin/sh -c"caddy -quiet -conf $CADDY_FILE" "$EXE_USER" &
+su -s/bin/sh -c"aria2c --log=$conf_path/aria2.log --dir=/aria2/data --conf-path=$conf_path/aria2.conf --input-file=$conf_path/aria2.session --save-session=$conf_path/aria2.session --dht-file-path=$conf_path/dht.dat $RPC_PARAMETER" "$EXE_USER"
