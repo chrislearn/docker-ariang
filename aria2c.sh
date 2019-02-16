@@ -32,8 +32,8 @@ if [ ! -n "$IS_IN_GROUP" ]; then
 	adduser "$EXE_USER" "$EXE_GROUP"
 fi
 
-chown -R "$PUID":"$PGID" "$conf_path"
-chown -R "$PUID":"$PGID" "$data_path"
+chown -R $PUID:$PGID "$conf_path"
+chown -R $PUID:$PGID "$data_path"
 
 if [ -n "$RPC_SECRET" ]; then
     RPC_PARAMETER="--rpc-secret=`echo $RPC_SECRET`"

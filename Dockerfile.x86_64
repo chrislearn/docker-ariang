@@ -22,6 +22,8 @@ RUN chmod +x /aria2/aria2c.sh && \
     rm AriaNg-${ARIANG_VERSION}.zip && \
     chmod -R 644 ./
 
+WORKDIR /aria2
+
 # User downloaded files
 VOLUME /aria2/data
 VOLUME /aria2/conf
