@@ -18,5 +18,5 @@ if [ -n "$RPC_SECRET" ]; then
     RPC_PARAMETER="--rpc-secret=`echo $RPC_SECRET`"
 fi
 
-su -s/bin/sh -c"caddy -quiet -conf /etc/Caddyfile" daemon && \
+su -s/bin/sh -c"caddy -quiet -conf /Caddyfile" daemon && \
 su -s/bin/sh -c"aria2c --log=$conf_path/aria2.log --conf-path=$conf_path/aria2.conf $RPC_PARAMETER" daemon
