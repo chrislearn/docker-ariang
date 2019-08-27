@@ -1,6 +1,6 @@
-FROM multiarch/alpine:aarch64-edge
+FROM alpine
 
-ARG ARIANG_VERSION=1.0.0
+ARG ARIANG_VERSION=1.1.3
 
 ENV RPC_SECRET=
 ENV ENABLE_AUTH=false
