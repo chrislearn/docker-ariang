@@ -1,5 +1,7 @@
 # [Aria2](https://github.com/aria2/aria2) + [AriaNg webui](https://github.com/mayswind/AriaNg) inside a docker container
 
+[![badge](https://images.microbadger.com/badges/image/hurlenko/aria2-ariang.svg)](https://microbadger.com/images/hurlenko/aria2-ariang "Get your own image badge on microbadger.com")
+
 - [How to run](#how-to-run)
   - [Simple Usage](#simple-usage)
   - [Full Usage](#full-usage)
@@ -22,31 +24,34 @@ The architectures supported by this image are:
 
 | Architecture | Tag |
 | :----: | --- |
-| x86_64 | x86_64 |
-| aarch64 | aarch64 |
+| amd64 | amd64 |
+| arm64 | arm64 |
 
 ### Simple Usage
 
 ```bash
-docker run -d --name ariang -p 80:80 -p 6800:6800 lisaac/ariang:`arch`
+docker run -d --name aria2-ui -p 80:80 -p 6800:6800 hurlenko/aria2-ariang
 ```
 
 ### Full Usage
 
 ```bash
 docker run -d \
-    --name ariang \
-    -p 6800:6800 \
-    -p 80:80 \
-    -v /DOWNLOAD_DIR:/aria2/data \
-    -v /CONFIG_DIR:/aria2/conf \
-    -e PUID=1000 \
-    -e PGID=1000 \
-    -e RPC_SECRET=NOBODYKNOWSME \
-    -e ENABLE_AUTH=true \
-    -e ARIANG_USER=user \
-    -e ARIANG_PWD=password \
-    lisaac/ariang:`arch`
+    --name aria2-ui \
+    -p 6800:6800 \                    # aria2 rpc
+    -p 80:80 \                        # webui
+    -v /DOWNLOAD_DIR:/aria2/data \    # replace /DOWNLOAD_DIR with your download directory in your host.
+    -v /CONFIG_DIR:/aria2/conf \      # replace /CONFIG_DIR with your configure directory in your host.
+    -e PUID=1000 \                    # replace 1000 with the userid who will own all downloaded files and configuration files.
+    -e PGID=1000 \                    # replace 1000 with the groupid who will own all downloaded files and configuration files.
+    -e RPC_SECRET=NOBODYKNOWSME \     # replace NOBODYKNOWSME with the secret for access Aria2 RPC services.
+    hurlenko/aria2-ariang
+```
+
+> Note: defaut rpc secret is `secret`. You can also remove secret by overriding `RPC_SECRET` with empty string when running your container:
+
+```bash
+-e RPC_SECRET=""
 ```
 
 Now head to <http://yourip> open settings, enter your secret and you're good to go
@@ -79,14 +84,14 @@ $ id username
 ### How to build
 
 ```bash
-git clone https://github.com/lisaac/aria2-ariang-docker
+git clone https://github.com/hurlenko/aria2-ariang-docker
 cd aria2-ariang-docker
-docker build -t ariang .
+docker build -t aria2-ui .
 ```
 
 ## Docker Hub
 
-  <https://hub.docker.com/r/lisaac/ariang/>
+  <https://hub.docker.com/r/hurlenko/aria2-ariang/>
 
 ## Usage it in Docker compose
 

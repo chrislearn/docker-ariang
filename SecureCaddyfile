@@ -1,6 +1,0 @@
-{$DOMAIN} {
-  root /ariang
-  timeouts none
-  gzip
-  basicauth / {$ARIANG_USER} {$ARIANG_PWD}
-}

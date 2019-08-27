@@ -1,32 +1,31 @@
 FROM alpine
 
-ARG ARIANG_VERSION=1.0.0
+ARG ARIANG_VERSION=1.1.3
 
-ENV RPC_SECRET=
-ENV ENABLE_AUTH=false
-ENV ARIA2_USER=user
-ENV ARIA2_PWD=password
-ENV DOMAIN=:80
-ENV PUID=1000
-ENV PGID=1000
+ENV RPC_SECRET=secret
+ENV DOMAIN=0.0.0.0:80
+ENV PUID=0
+ENV PGID=0
 
-RUN apk add --no-cache --update caddy aria2
-
-COPY conf /aria2/conf-copy
-COPY aria2c.sh /aria2/
-COPY Caddyfile /
-COPY SecureCaddyfile /
+RUN apk update \
+    && apk add --no-cache --update caddy curl aria2 su-exec
 
 # AriaNG
-WORKDIR /ariang
+WORKDIR /usr/local/www/aria2
 
-RUN chmod +x /aria2/aria2c.sh && \
-    wget https://github.com/mayswind/AriaNg/releases/download/${ARIANG_VERSION}/AriaNg-${ARIANG_VERSION}.zip && \
-    unzip AriaNg-${ARIANG_VERSION}.zip && \
-    rm AriaNg-${ARIANG_VERSION}.zip && \
-    chmod -R 755 ./
+RUN curl -sL https://github.com/mayswind/AriaNg/releases/download/${ARIANG_VERSION}/AriaNg-${ARIANG_VERSION}.zip \
+    --output ariang.zip \
+    && unzip ariang.zip \
+    && rm ariang.zip \
+    && chmod -R 755 ./
 
 WORKDIR /aria2
+
+COPY conf ./conf-copy
+COPY aria2c.sh ./
+COPY Caddyfile /usr/local/caddy/
+
+RUN chmod +x aria2c.sh
 
 # User downloaded files
 VOLUME /aria2/data
@@ -35,4 +34,4 @@ VOLUME /aria2/conf
 EXPOSE 6800
 EXPOSE 80
 
-CMD ["/bin/sh", "/aria2/aria2c.sh"]
+CMD ["/bin/sh", "./aria2c.sh" ]

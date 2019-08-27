@@ -1,49 +1,26 @@
-#!/bin/sh
-
 conf_path=/aria2/conf
 conf_copy_path=/aria2/conf-copy
 data_path=/aria2/data
 
-if [ ! -f "$conf_path"/aria2.conf ]; then
-    cp "$conf_copy_path"/aria2.conf "$conf_path"/aria2.conf
+userid=0 # 65534 - nobody, 0 - root
+groupid=0
 
+if [ ! -f $conf_path/aria2.conf ]; then
+	cp $conf_copy_path/aria2.conf $conf_path/aria2.conf
+    if [ -n "$RPC_SECRET" ]; then
+        printf '\nrpc-secret=%s\n' ${RPC_SECRET} >> $conf_path/aria2.conf
+    fi
 fi
 
-touch "$conf_path"/aria2.session
+touch ./conf/aria2.session
 
-EXE_USER=`cat /etc/passwd | awk -F : '{print $1"\t"$3}' | grep "$PUID" |awk '{print $1}'`
-EXE_GROUP=`cat /etc/group | grep "$PGID" | awk -F : '{print $1}'`
-
-if [ ! -n "$EXE_GROUP" ]; then
-    EXE_GROUP=aria2
-    addgroup -g "$PGID" -S "$EXE_GROUP"
-    echo $EXE_GROUP
+if [[ -n "$PUID" && -n  "$PGID" ]]; then
+    userid=$PUID
+    groupid=$PGID
 fi
 
-if [ ! -n "$EXE_USER" ]; then
-    EXE_USER=aria2
-    adduser "$EXE_USER" -u "$PUID" -SDH -G "$EXE_GROUP" -s /sbin/nologin
-    echo $EXE_USER
-fi
+chown -R $userid:$groupid $conf_path
+chown -R $userid:$groupid $data_path
 
-IS_IN_GROUP=`cat /etc/group | grep "$PGID" | grep "$EXE_USER"`
-
-if [ ! -n "$IS_IN_GROUP" ]; then
-	adduser "$EXE_USER" "$EXE_GROUP"
-fi
-
-chown -R $PUID:$PGID "$conf_path"
-chown -R $PUID:$PGID "$data_path"
-
-if [ -n "$RPC_SECRET" ]; then
-    RPC_PARAMETER="--rpc-secret=`echo $RPC_SECRET`"
-fi
-
-if [ "$ENABLE_AUTH" = "true" ]; then
-  CADDY_FILE=/SecureCaddyfile
-else
-  CADDY_FILE=/Caddyfile
-fi
-
-su -s/bin/sh -c"caddy -quiet -conf $CADDY_FILE" "$EXE_USER" &
-su -s/bin/sh -c"aria2c --log=$conf_path/aria2.log --dir=/aria2/data --conf-path=$conf_path/aria2.conf --input-file=$conf_path/aria2.session --save-session=$conf_path/aria2.session --dht-file-path=$conf_path/dht.dat $RPC_PARAMETER" "$EXE_USER"
+caddy -quiet -conf /usr/local/caddy/Caddyfile &
+su-exec $userid:$groupid aria2c --conf-path="$conf_path/aria2.conf"
